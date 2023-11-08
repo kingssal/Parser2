@@ -297,30 +297,35 @@ int evaluate_term() {
 int evaluate_factor() {
     int value = 0;
     if (next_token.type == LEFT_PAREN) {
-        lexical();
-        value = evaluate_expression();
+        lexical(); // Consume the left parenthesis
+        value = evaluate_expression(); // Evaluate the expression inside the parentheses
         if (next_token.type == RIGHT_PAREN) {
-            lexical();
+            lexical(); // Consume the right parenthesis
         } else {
-            error_flag = true; // Set error flag
+            std::cerr << "Parsing error: Expected ')' after expression." << std::endl;
+            error_flag = true;
         }
     } else if (next_token.type == IDENT) {
         if (symbol_table.find(next_token.value) == symbol_table.end()) {
-            error_flag = true; // Set error flag
+            std::cerr << "Error: Undefined variable " << next_token.value << std::endl;
+            error_flag = true;
+            value = 0; // Undefined variables are considered as 0
         } else {
             value = symbol_table[next_token.value];
         }
         id_count++; // Increment identifier count
-        lexical();
+        lexical(); // Consume the identifier
     } else if (next_token.type == CONST) {
         value = std::stoi(next_token.value);
         const_count++; // Increment constant count
-        lexical();
+        lexical(); // Consume the constant
     } else {
-        error_flag = true; // Set error flag
+        std::cerr << "Parsing error: Expected '(' or identifier or constant." << std::endl;
+        error_flag = true;
     }
     return value;
 }
+
 
 
 int main(int argc, char* argv[]) {
