@@ -10,13 +10,13 @@ enum TokenType{
     IDENT, CONST, ASSIGN_OP, ADD_OP, MULT_OP, SEMI_COLON, LEFT_PAREN, RIGHT_PAREN, END_OF_FILE, ERROR
 };
 
-//token represantation
+//token 
 struct Token{
     TokenType type;
     std::string value;
 };
 
-// Lexical analyzer global variables
+// 전역 변수들
 Token next_token;
 std::string token_string;
 std::ifstream input_file;
@@ -24,7 +24,7 @@ int id_count, const_count, op_count;
 bool error_flag, warning_flag;
 
 
-// Function declarations
+// 함수 선언
 void lexical();
 void program();
 void statements();
@@ -42,15 +42,13 @@ int evaluate_factor();
 // Symbol table
 std::map<std::string, int> symbol_table;
 
-
-// Helper functions
 bool is_ident(const std::string& token) {
     if(token.empty()) return false;
     
-    //chek if the first character is a letter or underscore
+    //첫번째가 letter이거나 _인지 확인
     if(!std::isalpha(token[0]) && token[0] != '_') return false;
 
-    //check the rest of token
+    //나머지들 확인
     for(size_t i = 1;i < token.length();++i){
         if(!std::isalnum(token[i])&&token[i] != '_') return false;
     }
@@ -60,7 +58,7 @@ bool is_ident(const std::string& token) {
 bool is_const(const std::string& token) {
     if (token.empty()) return false;
 
-    // Check if each character is a digit
+    // 각 character가 digit인지 확인
     for (char ch : token) {
         if (!std::isdigit(ch)) return false;
     }
@@ -73,7 +71,7 @@ void lexical() {
     char ch;
     token_string.clear();
 
-    // Skip whitespaces
+    // 공백 건너뛰기
     while (std::isspace(input_file.peek())) input_file.get();
 
     if (input_file.eof()) {
@@ -83,7 +81,7 @@ void lexical() {
 
     ch = input_file.get();
 
-    // Check for identifiers and keywords
+    // indentifiers, keyword 확인하기
     if (std::isalpha(ch) || ch == '_') {
         token_string += ch;
         while (std::isalnum(input_file.peek()) || input_file.peek() == '_') {
@@ -91,7 +89,7 @@ void lexical() {
         }
         next_token = {IDENT, token_string};
     }
-    // Check for constants (decimal numbers)
+    // constansts 확인
     else if (std::isdigit(ch)) {
         token_string += ch;
         while (std::isdigit(input_file.peek())) {
@@ -99,7 +97,7 @@ void lexical() {
         }
         next_token = {CONST, token_string};
     }
-    // Check for assignment operator
+    // assignment op인지 확인
     else if (ch == ':') {
         if (input_file.peek() == '=') {
             input_file.get();
@@ -108,7 +106,7 @@ void lexical() {
             next_token = {ERROR, ":"};
         }
     }
-    // Check for other operators and symbols
+    // 나머지들 확인
     else {
         switch (ch) {
             case '+': next_token = {ADD_OP, "+"}; break;
@@ -124,21 +122,19 @@ void lexical() {
 }
 
 void program() {
-    // According to the grammar, a <program> consists of <statements>
+    //a <program> consists of <statements>
     statements();
 
-    // After parsing all statements, we should be at the end of the file
+    // 다 확인후 endoffile
     if (next_token.type != END_OF_FILE) {
         std::cerr << "Parsing error: Extra tokens after program end." << std::endl;
-        // Handle the error appropriately
     }
 }
 
 void statements() {
-    // First, we expect a statement
+    // expect a statement
     statement();
 
-    // After a statement, we may have a semi_colon followed by more statements
     while (next_token.type == SEMI_COLON) {
         // Consume the semi_colon
         lexical();
@@ -147,10 +143,8 @@ void statements() {
         statement();
     }
 
-    // If the next token is not a semi_colon, then there should be no more statements
     if (next_token.type != SEMI_COLON && next_token.type != END_OF_FILE) {
         std::cerr << "Parsing error: Expected ';' or end of file." << std::endl;
-        // Handle the error appropriately
     }
 }
 
@@ -195,10 +189,8 @@ void statement() {
 
 
 void expression() {
-    // According to the grammar, an expression starts with a term
     term();
 
-    // After a term, we may have a term_tail
     term_tail();
 }
 
