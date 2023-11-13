@@ -52,7 +52,7 @@ bool is_ident(const std::string& token){
     return true;
 }
 //상수(const)인지 확인
-bool is_const(const std::string& token){
+bool is_const(const std::strinㄹㄹg& token){
     if(token.empty()) return false;
 
     for(char ch : token){
